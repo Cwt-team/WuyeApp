@@ -1,0 +1,24 @@
+<!-- res/layout/item_quick_action.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/quickActionIcon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_launcher_foreground"
+        android:scaleType="centerCrop"/>
+
+    <TextView
+        android:id="@+id/quickActionName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="功能名称"
+        android:textSize="12sp"
+        android:layout_marginTop="4dp"/>
+
+</LinearLayout>

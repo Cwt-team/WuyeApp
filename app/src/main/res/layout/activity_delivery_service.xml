@@ -1,0 +1,23 @@
+<!-- res/layout/activity_delivery_service.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/queryDeliveryButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="查询我的快递"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/deliveryPointInfoButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="代收点信息" />
+
+    <!-- 可以添加其他快递服务相关的 UI 元素 -->
+
+</LinearLayout>

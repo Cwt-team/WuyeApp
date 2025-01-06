@@ -1,0 +1,32 @@
+<!-- res/layout/item_setting.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/settingIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_settings"
+        android:layout_marginEnd="16dp"/>
+
+    <TextView
+        android:id="@+id/settingName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="设置项名称"
+        android:textSize="16sp"/>
+
+    <ImageView
+        android:id="@+id/settingArrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_arrow_right"
+        android:visibility="gone"/> <!-- 默认隐藏，根据需要显示 -->
+
+    <!-- 可以根据需要添加 Switch 或 CheckBox -->
+
+</LinearLayout>

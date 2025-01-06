@@ -1,0 +1,11 @@
+<!-- res/drawable/scan_border.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <stroke
+                android:width="2dp"
+                android:color="@color/colorAccent" /> <!-- 使用你的主题色 -->
+        </shape>
+    </item>
+</layer-list>
