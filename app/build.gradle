@@ -35,4 +35,19 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+
+    // AndroidX Room
+    implementation("androidx.room:room-runtime:2.6.0") // 请替换为最新版本
+    annotationProcessor "androidx.room:room-compiler:2.6.0" // 请替换为最新版本
+    implementation("androidx.room:room-ktx:2.6.0") // 可选，如果使用 Kotlin 协程，请替换为最新版本
+
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0") // 请替换为最新版本
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0") // 请替换为最新版本 (如果你使用 Gson)
+
+    // ZXing Core
+    implementation("com.google.zxing:core:3.5.1") // 请替换为最新版本
+
+    // AndroidX SwipeRefreshLayout
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0") // 请替换为最新版本
 }

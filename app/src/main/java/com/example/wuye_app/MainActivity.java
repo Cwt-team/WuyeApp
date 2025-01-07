@@ -25,13 +25,31 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
+        // 检查Fragment容器是否存在
+        if (findViewById(R.id.fragment_container) == null) {
+            Toast.makeText(this, "Fragment容器未找到", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 检查网络状态
+        if (!NetworkUtils.isNetworkAvailable(this)) {
+            Toast.makeText(this, "网络不可用，请检查网络连接", Toast.LENGTH_SHORT).show();
+        }
+
+        // 检查用户登录状态
+        if (!SharedPreferencesManager.isUserLoggedIn(this)) {
+            startActivity(LoginActivity.newIntent(this));
+            finish();
+            return;
+        }
+
         // 设置默认显示的 Fragment
-        loadFragment(new HomeActivity()); // 假设 HomeActivity 可以作为 Fragment 的容器
+        loadFragment(new HomeFragment());
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.navigation_home) {
-                loadFragment(new HomeActivity());
+                loadFragment(new HomeFragment());
                 return true;
             } else if (id == R.id.navigation_door) {
                 // 可以直接启动 Activity 或者加载 Fragment

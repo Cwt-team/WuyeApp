@@ -1,4 +1,3 @@
-// com/example/wuye_app/modules/home/adapters/QuickActionsAdapter.java
 package com.example.wuye_app.modules.home.adapters;
 
 import android.view.LayoutInflater;
@@ -11,60 +10,66 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.wuye_app.R;
-import com.example.wuye_app.modules.home.HomeActivity;
+import com.example.wuye_app.utils.Pair;
 
 import java.util.List;
 
 public class QuickActionsAdapter extends RecyclerView.Adapter<QuickActionsAdapter.ViewHolder> {
 
-    private List<HomeActivity.Pair<Integer, String>> quickActionsList;
-    private OnItemClickListener listener;
+    private List<Pair<Integer, String>> quickActions;
+    private OnItemClickListener onItemClickListener;
 
-    public QuickActionsAdapter(List<HomeActivity.Pair<Integer, String>> quickActionsList) {
-        this.quickActionsList = quickActionsList;
+    public QuickActionsAdapter(List<Pair<Integer, String>> quickActions) {
+        this.quickActions = quickActions;
     }
 
-    public interface OnItemClickListener {
-        void onItemClick(int position);
+    public void updateData(List<Pair<Integer, String>> newData) {
+        this.quickActions = newData;
+        notifyDataSetChanged();
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
-        this.listener = listener;
+        this.onItemClickListener = listener;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_quick_action, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_quick_action, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        HomeActivity.Pair<Integer, String> quickAction = quickActionsList.get(position);
-        holder.iconImageView.setImageResource(quickAction.first);
-        holder.nameTextView.setText(quickAction.second);
+        Pair<Integer, String> action = quickActions.get(position);
+        holder.icon.setImageResource(action.first);
+        holder.name.setText(action.second);
 
         holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onItemClick(holder.getAdapterPosition());
+            if (onItemClickListener != null) {
+                onItemClickListener.onItemClick(position);
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return quickActionsList.size();
+        return quickActions.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView iconImageView;
-        TextView nameTextView;
+        ImageView icon;
+        TextView name;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            iconImageView = itemView.findViewById(R.id.quickActionIcon);
-            nameTextView = itemView.findViewById(R.id.quickActionName);
+            icon = itemView.findViewById(R.id.quickActionIcon);
+            name = itemView.findViewById(R.id.quickActionName);
         }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(int position);
     }
 }
