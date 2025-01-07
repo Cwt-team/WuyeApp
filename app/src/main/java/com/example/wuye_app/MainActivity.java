@@ -61,6 +61,9 @@ public class MainActivity extends AppCompatActivity {
                 // 可以直接启动 Activity 或者加载 Fragment
                 startActivity(DoorControlActivity.newIntent(this)); // 假设 DoorControlActivity 有 newIntent 方法
                 return true;
+            } else if (id == R.id.navigation_notifications) {
+                // Handle notifications navigation
+                return true;
             } else if (id == R.id.navigation_profile) {
                 startActivity(ProfileActivity.newIntent(this)); // 假设 ProfileActivity 有 newIntent 方法
                 return true;
