@@ -1,9 +1,9 @@
-// com/example/wuye_app/modules/login/LoginActivity.java
 package com.example.wuye_app.modules.login;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
+import android.content.Intent;  // 确保引入 Intent
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
 import android.widget.Button;
@@ -15,15 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.wuye_app.MainActivity;
 import com.example.wuye_app.R;
-import com.example.wuye_app.data.remote.ApiService;
-import com.example.wuye_app.data.remote.LoginRequest;
-import com.example.wuye_app.data.remote.LoginResponse;
-import com.example.wuye_app.utils.RetrofitClient;
 import com.example.wuye_app.utils.SharedPreferencesManager;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -87,50 +79,41 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        // 模拟验证码校验
+        if (!captcha.equalsIgnoreCase("1234")) { // 示例验证码
+            captchaEditText.setError("验证码错误");
+            return;
+        }
+
         // 显示加载对话框
         ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("登录中...");
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        // 调用API进行登录
-        ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
-        Call<LoginResponse> call = apiService.login(new LoginRequest(username, password, captcha));
-        call.enqueue(new Callback<LoginResponse>() {
-            @Override
-            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-                progressDialog.dismiss();
-                if (response.isSuccessful() && response.body() != null) {
-                    LoginResponse loginResponse = response.body();
-                    if (loginResponse.isSuccess()) {
-                        // 保存登录状态
-                        SharedPreferencesManager.getInstance(LoginActivity.this)
-                                .setLoggedIn(true)
-                                .setUsername(username)
-                                .setRememberPassword(rememberPasswordCheckBox.isChecked());
+        // 模拟登录验证 (使用示例数据)
+        new Handler().postDelayed(() -> {
+            progressDialog.dismiss();
+            if ((username.equals("test") && password.equals("123456")) ||
+                    (username.equals("admin") && password.equals("password"))) {
+                // 登录成功
+                SharedPreferencesManager sp = SharedPreferencesManager.getInstance(LoginActivity.this);
+                sp.setLoggedIn(true);
+                sp.setUsername(username);
+                sp.setRememberPassword(rememberPasswordCheckBox.isChecked());
 
-                        if (rememberPasswordCheckBox.isChecked()) {
-                            SharedPreferencesManager.getInstance(LoginActivity.this)
-                                    .setPassword(password);
-                        }
-
-                        // 跳转到主界面
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        Toast.makeText(LoginActivity.this, loginResponse.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(LoginActivity.this, "登录失败，请重试", Toast.LENGTH_SHORT).show();
+                if (rememberPasswordCheckBox.isChecked()) {
+                    sp.setPassword(password);
                 }
-            }
 
-            @Override
-            public void onFailure(Call<LoginResponse> call, Throwable t) {
-                progressDialog.dismiss();
-                Toast.makeText(LoginActivity.this, "网络连接失败，请检查网络", Toast.LENGTH_SHORT).show();
+                // 跳转到主界面
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            } else {
+                // 登录失败
+                Toast.makeText(LoginActivity.this, "用户名或密码错误", Toast.LENGTH_SHORT).show();
             }
-        });
+        }, 2000); // 模拟网络延迟
     }
 }

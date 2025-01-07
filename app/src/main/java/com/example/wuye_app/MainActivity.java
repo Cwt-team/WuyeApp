@@ -3,16 +3,22 @@ package com.example.wuye_app;
 
 import android.os.Bundle;
 import android.widget.Toast;
+import android.content.Intent;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+
+import com.example.wuye_app.modules.login.LoginActivity;
+import com.example.wuye_app.utils.NetworkUtils;
 import com.example.wuye_app.modules.home.HomeActivity;
 import com.example.wuye_app.modules.profile.ProfileActivity;
 import com.example.wuye_app.modules.door.DoorControlActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.example.wuye_app.utils.SharedPreferencesManager;
+import com.example.wuye_app.modules.home.HomeFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,13 +38,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // 检查网络状态
-        if (!NetworkUtils.isNetworkAvailable(this)) {
+        if (!NetworkUtils.getInstance(this).isNetworkAvailable()) {
             Toast.makeText(this, "网络不可用，请检查网络连接", Toast.LENGTH_SHORT).show();
         }
 
         // 检查用户登录状态
-        if (!SharedPreferencesManager.isUserLoggedIn(this)) {
-            startActivity(LoginActivity.newIntent(this));
+        if (!SharedPreferencesManager.getInstance(this).isLoggedIn()) {
+            startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
         }

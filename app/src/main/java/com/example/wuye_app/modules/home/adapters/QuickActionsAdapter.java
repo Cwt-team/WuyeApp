@@ -69,6 +69,10 @@ public class QuickActionsAdapter extends RecyclerView.Adapter<QuickActionsAdapte
         }
     }
 
+    public Pair<Integer, String> getItem(int position) {
+        return quickActions.get(position);
+    }
+
     public interface OnItemClickListener {
         void onItemClick(int position);
     }

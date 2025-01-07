@@ -69,6 +69,10 @@ public class LifeServicesAdapter extends RecyclerView.Adapter<LifeServicesAdapte
         }
     }
 
+    public Pair<Integer, String> getItem(int position) {
+        return lifeServices.get(position);
+    }
+
     public interface OnItemClickListener {
         void onItemClick(int position);
     }

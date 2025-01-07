@@ -294,3 +294,447 @@ Wuye_App/
 
 ```
 
+// MainActivity.java
+package com.example.wuye_app;
+
+import android.os.Bundle;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+
+import com.example.wuye_app.utils.NetworkUtils;
+import com.example.wuye_app.modules.home.HomeActivity;
+import com.example.wuye_app.modules.profile.ProfileActivity;
+import com.example.wuye_app.modules.door.DoorControlActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.example.wuye_app.utils.SharedPreferencesManager;
+import com.example.wuye_app.modules.home.HomeFragment;
+
+public class MainActivity extends AppCompatActivity {
+
+    private BottomNavigationView bottomNavigationView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+
+        // 检查Fragment容器是否存在
+        if (findViewById(R.id.fragment_container) == null) {
+            Toast.makeText(this, "Fragment容器未找到", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 检查网络状态
+        if (!NetworkUtils.getInstance(this).isNetworkAvailable()) {
+            Toast.makeText(this, "网络不可用，请检查网络连接", Toast.LENGTH_SHORT).show();
+        }
+
+        // 检查用户登录状态
+        if (!SharedPreferencesManager.getInstance(this).isLoggedIn()) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
+
+        // 设置默认显示的 Fragment
+        loadFragment(new HomeFragment());
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.navigation_home) {
+                loadFragment(new HomeFragment());
+                return true;
+            } else if (id == R.id.navigation_door) {
+                // 可以直接启动 Activity 或者加载 Fragment
+                startActivity(DoorControlActivity.newIntent(this)); // 假设 DoorControlActivity 有 newIntent 方法
+                return true;
+            } else if (id == R.id.navigation_profile) {
+                startActivity(ProfileActivity.newIntent(this)); // 假设 ProfileActivity 有 newIntent 方法
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void loadFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment); // fragment_container 是 activity_main.xml 中用于显示 Fragment 的容器
+        transaction.commit();
+    }
+}
+// com/example/wuye_app/modules/login/LoginActivity.java
+package com.example.wuye_app.modules.login;
+
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.text.TextUtils;
+import android.text.method.PasswordTransformationMethod;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.wuye_app.MainActivity;
+import com.example.wuye_app.R;
+import com.example.wuye_app.utils.SharedPreferencesManager;
+
+
+public class LoginActivity extends AppCompatActivity {
+
+    private EditText usernameEditText;
+    private EditText passwordEditText;
+    private EditText captchaEditText;
+    private Button loginButton;
+    private Button showPasswordButton;
+    private CheckBox rememberPasswordCheckBox;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+
+        usernameEditText = findViewById(R.id.usernameEditText);
+        passwordEditText = findViewById(R.id.passwordEditText);
+        captchaEditText = findViewById(R.id.captchaEditText);
+        loginButton = findViewById(R.id.loginButton);
+        showPasswordButton = findViewById(R.id.showPasswordButton);
+        rememberPasswordCheckBox = findViewById(R.id.rememberPasswordCheckBox);
+
+        // 初始化记住密码状态
+        boolean rememberPassword = SharedPreferencesManager.getInstance(this).getRememberPassword();
+        rememberPasswordCheckBox.setChecked(rememberPassword);
+        if (rememberPassword) {
+            usernameEditText.setText(SharedPreferencesManager.getInstance(this).getUsername());
+            passwordEditText.setText(SharedPreferencesManager.getInstance(this).getPassword());
+        }
+
+        showPasswordButton.setOnClickListener(v -> {
+            if (passwordEditText.getTransformationMethod() == null) {
+                passwordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                showPasswordButton.setText("显示密码");
+            } else {
+                passwordEditText.setTransformationMethod(null);
+                showPasswordButton.setText("隐藏密码");
+            }
+        });
+
+        loginButton.setOnClickListener(v -> attemptLogin());
+    }
+
+    private void attemptLogin() {
+        String username = usernameEditText.getText().toString();
+        String password = passwordEditText.getText().toString();
+        String captcha = captchaEditText.getText().toString();
+
+        if (TextUtils.isEmpty(username)) {
+            usernameEditText.setError("用户名不能为空");
+            return;
+        }
+
+        if (TextUtils.isEmpty(password)) {
+            passwordEditText.setError("密码不能为空");
+            return;
+        }
+
+        if (TextUtils.isEmpty(captcha)) {
+            captchaEditText.setError("验证码不能为空");
+            return;
+        }
+
+        // 模拟验证码校验
+        if (!captcha.equalsIgnoreCase("1234")) { // 示例验证码
+            captchaEditText.setError("验证码错误");
+            return;
+        }
+
+        // 显示加载对话框
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("登录中...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        // 模拟登录验证 (使用示例数据)
+        new Handler().postDelayed(() -> {
+            progressDialog.dismiss();
+            if ((username.equals("test") && password.equals("123456")) ||
+                    (username.equals("admin") && password.equals("password"))) {
+                // 登录成功
+                // 保存登录状态
+                SharedPreferencesManager.getInstance(LoginActivity.this)
+                        .setLoggedIn(true)
+                        .setUsername(username)
+                        .setRememberPassword(rememberPasswordCheckBox.isChecked());
+
+                if (rememberPasswordCheckBox.isChecked()) {
+                    SharedPreferencesManager.getInstance(LoginActivity.this)
+                            .setPassword(password);
+                }
+
+                // 跳转到主界面
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            } else {
+                // 登录失败
+                Toast.makeText(LoginActivity.this, "用户名或密码错误", Toast.LENGTH_SHORT).show();
+            }
+        }, 2000); // 模拟网络延迟
+    }
+}
+// com/example/wuye_app/modules/home/HomeActivity.java
+package com.example.wuye_app.modules.home;
+
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import com.example.wuye_app.utils.Pair;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.example.wuye_app.R; // 确保导入了你的 R 文件
+import com.example.wuye_app.data.model.HomeDataResponse;
+import com.example.wuye_app.data.model.LifeService;
+import com.example.wuye_app.data.model.QuickAction;
+import com.example.wuye_app.data.remote.ApiService;
+import com.example.wuye_app.data.remote.RetrofitClient;
+import com.example.wuye_app.modules.notification.NotificationListActivity;
+import com.example.wuye_app.modules.profile.ProfileActivity;
+import com.example.wuye_app.modules.home.adapters.LifeServicesAdapter;
+import com.example.wuye_app.modules.home.adapters.QuickActionsAdapter;
+import com.example.wuye_app.utils.NetworkUtils;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class HomeActivity extends AppCompatActivity {
+
+    private HomeViewModel homeViewModel;
+    private RecyclerView quickActionsRecyclerView;
+    private QuickActionsAdapter quickActionsAdapter;
+    private RecyclerView lifeServicesRecyclerView;
+    private LifeServicesAdapter lifeServicesAdapter;
+
+    public static Intent newIntent(Context context) {
+        return new Intent(context, HomeActivity.class);
+    }
+
+    private BottomNavigationView bottomNavigationView;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private TextView userNameTextView;
+    private TextView communityNameTextView;
+    private View loadingIndicator;
+    private TextView errorView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
+
+        homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+
+        // Initialize UI elements
+        userNameTextView = findViewById(R.id.userNameTextView);
+        communityNameTextView = findViewById(R.id.communityNameTextView);
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        quickActionsRecyclerView = findViewById(R.id.quickActionsRecyclerView);
+        lifeServicesRecyclerView = findViewById(R.id.lifeServicesRecyclerView);
+        loadingIndicator = findViewById(R.id.loadingIndicator);
+        errorView = findViewById(R.id.errorView);
+
+        // Set up BottomNavigationView
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.navigation_home) {
+                return true;
+            } else if (itemId == R.id.navigation_notifications) {
+                startActivity(new Intent(this, NotificationListActivity.class));
+                return true;
+            } else if (itemId == R.id.navigation_door) {
+                Toast.makeText(this, "Clicked 开锁", Toast.LENGTH_SHORT).show();
+                // 处理开锁逻辑
+                return true;
+            } else if (itemId == R.id.navigation_profile) {
+                startActivity(new Intent(this, ProfileActivity.class));
+                return true;
+            }
+            return false;
+        });
+
+        // Set up SwipeRefreshLayout
+        swipeRefreshLayout.setOnRefreshListener(this::loadData);
+
+        // Set up Quick Actions RecyclerView
+        GridLayoutManager quickActionsLayoutManager = new GridLayoutManager(this, 4);
+        quickActionsRecyclerView.setLayoutManager(quickActionsLayoutManager);
+        quickActionsAdapter = new QuickActionsAdapter(new ArrayList<>()); // Initialize with empty list
+        quickActionsRecyclerView.setAdapter(quickActionsAdapter);
+
+        // Set up Life Services RecyclerView
+        GridLayoutManager lifeServicesLayoutManager = new GridLayoutManager(this, 3);
+        lifeServicesRecyclerView.setLayoutManager(lifeServicesLayoutManager);
+        lifeServicesAdapter = new LifeServicesAdapter(new ArrayList<>()); // Initialize with empty list
+        lifeServicesRecyclerView.setAdapter(lifeServicesAdapter);
+
+        // Observe ViewModel data (Example - adjust as needed)
+        homeViewModel.getCommunityName().observe(this, communityName -> {
+            // userNameTextView.setText(communityName); // Example usage
+        });
+
+        // Set click listeners for Quick Actions
+        quickActionsAdapter.setOnItemClickListener(position -> {
+            if (position >= 0 && position < quickActionsAdapter.getItemCount()) {
+                Pair<Integer, String> action = quickActionsAdapter.getItem(position);
+                if (action != null) {
+                    String actionName = action.second;
+                    Toast.makeText(this, "Clicked quick action: " + actionName, Toast.LENGTH_SHORT).show();
+                    // Handle actions based on actionName
+                }
+            }
+        });
+
+        // Set click listeners for Life Services
+        lifeServicesAdapter.setOnItemClickListener(position -> {
+            if (position >= 0 && position < lifeServicesAdapter.getItemCount()) {
+                Pair<Integer, String> service = lifeServicesAdapter.getItem(position);
+                if (service != null) {
+                    String serviceName = service.second;
+                    Toast.makeText(this, "Clicked life service: " + serviceName, Toast.LENGTH_SHORT).show();
+                    // Handle actions based on serviceName
+                }
+            }
+        });
+
+        loadData();
+    }
+
+    private void loadData() {
+        if (!NetworkUtils.getInstance(this).isNetworkAvailable()) {
+            showNetworkError();
+            return;
+        }
+
+        swipeRefreshLayout.setRefreshing(true);
+        showLoadingState();
+        errorView.setVisibility(View.GONE);
+
+        ApiService apiService = RetrofitClient.getApiService();
+        Call<HomeDataResponse> call = apiService.getHomeData();
+        call.enqueue(new Callback<HomeDataResponse>() {
+            @Override
+            public void onResponse(Call<HomeDataResponse> call, Response<HomeDataResponse> response) {
+                swipeRefreshLayout.setRefreshing(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    updateUI(response.body());
+                } else {
+                    showErrorState();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<HomeDataResponse> call, Throwable t) {
+                swipeRefreshLayout.setRefreshing(false);
+                showNetworkError();
+            }
+        });
+    }
+
+    private void updateUI(HomeDataResponse homeData) {
+        userNameTextView.setText(homeData.getUserName());
+        communityNameTextView.setText(homeData.getCommunityName());
+
+        List<Pair<Integer, String>> quickActions = new ArrayList<>();
+        if (homeData.getQuickActions() != null) {
+            for (QuickAction action : homeData.getQuickActions()) {
+                quickActions.add(new Pair<>(getDrawableRes(action.getIcon()), action.getName()));
+            }
+        }
+        quickActionsAdapter.updateData(quickActions);
+
+        List<Pair<Integer, String>> lifeServices = new ArrayList<>();
+        if (homeData.getLifeServices() != null) {
+            for (LifeService service : homeData.getLifeServices()) {
+                lifeServices.add(new Pair<>(getDrawableRes(service.getIcon()), service.getName()));
+            }
+        }
+        lifeServicesAdapter.updateData(lifeServices);
+    }
+
+    private int getDrawableRes(String iconName) {
+        int resourceId = getResources().getIdentifier(iconName, "drawable", getPackageName());
+        if (resourceId == 0) {
+            return R.drawable.ic_launcher_foreground; // Default if not found
+        }
+        return resourceId;
+    }
+
+    private void showLoadingState() {
+        loadingIndicator.setVisibility(View.VISIBLE);
+        quickActionsRecyclerView.setVisibility(View.GONE);
+        lifeServicesRecyclerView.setVisibility(View.GONE);
+    }
+
+    private void showNetworkError() {
+        Toast.makeText(this, R.string.network_unavailable, Toast.LENGTH_SHORT).show();
+        showErrorState();
+    }
+
+    private void showErrorState() {
+        loadingIndicator.setVisibility(View.GONE);
+        quickActionsRecyclerView.setVisibility(View.GONE);
+        lifeServicesRecyclerView.setVisibility(View.GONE);
+        errorView.setVisibility(View.VISIBLE);
+    }
+}
+package com.example.wuye_app.data.remote;
+
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
+public class RetrofitClient {
+private static final String BASE_URL = "YOUR_API_BASE_URL"; // 替换为你的 API 基础 URL
+private static RetrofitClient instance;
+private final Retrofit retrofit;
+
+    private RetrofitClient() {
+        retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+    }
+
+    public static synchronized RetrofitClient getInstance() {
+        if (instance == null) {
+            instance = new RetrofitClient();
+        }
+        return instance;
+    }
+
+    public ApiService getApiService() {
+        return retrofit.create(ApiService.class);
+    }
+}

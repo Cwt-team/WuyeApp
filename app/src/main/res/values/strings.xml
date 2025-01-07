@@ -1,3 +1,6 @@
 <resources>
+    <string name="network_error_message">网络连接失败，请检查网络设置</string>
+    <string name="network_unavailable">网络不可用，请检查网络连接</string>
     <string name="app_name">Wuye_App</string>
+    <string name="navigation_notifications">通知</string>
 </resources>
