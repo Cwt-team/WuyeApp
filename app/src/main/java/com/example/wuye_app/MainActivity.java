@@ -42,15 +42,14 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "网络不可用，请检查网络连接", Toast.LENGTH_SHORT).show();
         }
 
-        // 检查用户登录状态
-        if (!SharedPreferencesManager.getInstance(this).isLoggedIn()) {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-            return;
-        }
-
         // 设置默认显示的 Fragment
         loadFragment(new HomeFragment());
+
+        // 检查用户登录状态
+        if (!SharedPreferencesManager.getInstance(this).isLoggedIn()) {
+            Toast.makeText(this, "请先登录", Toast.LENGTH_SHORT).show();
+            // 可以添加一个登录按钮或对话框提示用户登录
+        }
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
