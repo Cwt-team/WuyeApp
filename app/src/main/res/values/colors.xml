@@ -7,9 +7,12 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="primary">#FFFFFF</color>
 
-    <!-- 添加缺失的颜色定义 -->
-    <color name="colorPrimary">#3F51B5</color>  <!-- 你可以替换为你想要的颜色 -->
-    <color name="colorPrimaryDark">#303F9F</color> <!-- 你可以替换为你想要的颜色 -->
-    <color name="colorAccent">#FF4081</color>   <!-- 你可以替换为你想要的颜色 -->
+    <!-- 你已经添加的其他颜色定义 -->
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="light_teal">#047C71</color>
+    <color name="green">#297F07</color>
 </resources>

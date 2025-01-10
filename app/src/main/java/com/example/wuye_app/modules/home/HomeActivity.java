@@ -1,19 +1,29 @@
 // com/example/wuye_app/modules/home/HomeActivity.java
 package com.example.wuye_app.modules.home;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import com.example.wuye_app.utils.Pair;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.GridLayout;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.viewpager2.widget.ViewPager2;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import com.example.wuye_app.R; // 确保导入了你的 R 文件
 import com.example.wuye_app.data.model.HomeDataResponse;
@@ -38,9 +48,7 @@ import java.util.List;
 public class HomeActivity extends AppCompatActivity {
 
     private HomeViewModel homeViewModel;
-    private RecyclerView quickActionsRecyclerView;
     private QuickActionsAdapter quickActionsAdapter;
-    private RecyclerView lifeServicesRecyclerView;
     private LifeServicesAdapter lifeServicesAdapter;
 
     public static Intent newIntent(Context context) {
@@ -53,6 +61,9 @@ public class HomeActivity extends AppCompatActivity {
     private TextView communityNameTextView;
     private View loadingIndicator;
     private TextView errorView;
+    private ViewPager2 carouselViewPager;
+    private RecyclerView quickActionsRecyclerView;
+    private RecyclerView lifeServicesRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,14 +73,15 @@ public class HomeActivity extends AppCompatActivity {
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
         // Initialize UI elements
+        carouselViewPager = findViewById(R.id.imageCarousel); // Use the correct ID from your XML
         userNameTextView = findViewById(R.id.userNameTextView);
-        communityNameTextView = findViewById(R.id.communityNameTextView);
+        communityNameTextView = findViewById(R.id.userAddressTextView); // Assuming userAddressTextView is intended for community name
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         quickActionsRecyclerView = findViewById(R.id.quickActionsRecyclerView);
         lifeServicesRecyclerView = findViewById(R.id.lifeServicesRecyclerView);
-        loadingIndicator = findViewById(R.id.loadingIndicator);
-        errorView = findViewById(R.id.errorView);
+        loadingIndicator = findViewById(R.id.noNotificationLayout);
+        errorView = findViewById(R.id.noNotificationDetailsTextView);
 
         // Set up BottomNavigationView
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
@@ -93,17 +105,13 @@ public class HomeActivity extends AppCompatActivity {
         // Set up SwipeRefreshLayout
         swipeRefreshLayout.setOnRefreshListener(this::loadData);
 
-        // Set up Quick Actions RecyclerView
-        GridLayoutManager quickActionsLayoutManager = new GridLayoutManager(this, 4);
-        quickActionsRecyclerView.setLayoutManager(quickActionsLayoutManager);
-        quickActionsAdapter = new QuickActionsAdapter(new ArrayList<>()); // Initialize with empty list
-        quickActionsRecyclerView.setAdapter(quickActionsAdapter);
+        // Set up Quick Actions GridLayout
+        quickActionsAdapter = new QuickActionsAdapter(new ArrayList<>());
+        setupQuickActionButtons();
 
-        // Set up Life Services RecyclerView
-        GridLayoutManager lifeServicesLayoutManager = new GridLayoutManager(this, 3);
-        lifeServicesRecyclerView.setLayoutManager(lifeServicesLayoutManager);
-        lifeServicesAdapter = new LifeServicesAdapter(new ArrayList<>()); // Initialize with empty list
-        lifeServicesRecyclerView.setAdapter(lifeServicesAdapter);
+        // Set up Life Services HorizontalScrollView
+        lifeServicesAdapter = new LifeServicesAdapter(new ArrayList<>());
+        setupLifeServiceCards();
 
         // Observe ViewModel data (Example - adjust as needed)
         homeViewModel.getCommunityName().observe(this, communityName -> {
@@ -134,7 +142,47 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        loadData();
+        // Set up carousel
+        List<Integer> carouselImages = new ArrayList<>();
+        carouselImages.add(R.drawable.home2_1);
+        carouselImages.add(R.drawable.home2_2);
+
+        CarouselAdapter carouselAdapter = new CarouselAdapter(carouselImages);
+        carouselViewPager.setAdapter(carouselAdapter);
+    }
+
+    private class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.ViewHolder> {
+        private List<Integer> images;
+
+        CarouselAdapter(List<Integer> images) {
+            this.images = images;
+        }
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = getLayoutInflater().inflate(R.layout.item_carousel_image, parent, false);
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            holder.imageView.setImageResource(images.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return images.size();
+        }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+            ImageView imageView;
+
+            ViewHolder(View itemView) {
+                super(itemView);
+                imageView = itemView.findViewById(R.id.carouselImage); // Assuming you have an ImageView with this ID in item_carousel_image.xml
+            }
+        }
     }
 
     private void loadData() {
@@ -213,5 +261,15 @@ public class HomeActivity extends AppCompatActivity {
         quickActionsRecyclerView.setVisibility(View.GONE);
         lifeServicesRecyclerView.setVisibility(View.GONE);
         errorView.setVisibility(View.VISIBLE);
+    }
+
+    private void setupQuickActionButtons() {
+        quickActionsRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        quickActionsRecyclerView.setAdapter(quickActionsAdapter);
+    }
+
+    private void setupLifeServiceCards() {
+        lifeServicesRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        lifeServicesRecyclerView.setAdapter(lifeServicesAdapter);
     }
 }

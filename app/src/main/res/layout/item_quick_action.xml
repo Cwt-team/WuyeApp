@@ -14,7 +14,7 @@
         android:scaleType="centerCrop"/>
 
     <TextView
-        android:id="@+id/quickActionName"
+        android:id="@+id/quickActionLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="功能名称"
